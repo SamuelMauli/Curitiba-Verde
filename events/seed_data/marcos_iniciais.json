@@ -1,0 +1,167 @@
+[
+  {
+    "data": "2000-06-19",
+    "titulo": "Lei Municipal 10.237 — Plano Diretor de Curitiba",
+    "descricao": "Aprovação do Plano Diretor que define zoneamento e áreas de preservação ambiental",
+    "categoria": "legislacao",
+    "fonte": "Câmara Municipal de Curitiba",
+    "bairros": [],
+    "regional": "Todas",
+    "impacto_ndvi": "positivo",
+    "relevancia": 5
+  },
+  {
+    "data": "2001-03-15",
+    "titulo": "Inauguração do Parque Tanguá — ampliação",
+    "descricao": "Ampliação do Parque Tanguá com novas áreas verdes e infraestrutura",
+    "categoria": "parque_area_verde",
+    "fonte": "Prefeitura de Curitiba",
+    "bairros": ["Pilarzinho", "Taboão"],
+    "regional": "Santa Felicidade",
+    "impacto_ndvi": "positivo",
+    "relevancia": 4
+  },
+  {
+    "data": "2003-09-01",
+    "titulo": "Início obras Linha Verde (BR-116)",
+    "descricao": "Transformação da BR-116 em via urbana com BRT, removendo vegetação lateral",
+    "categoria": "obra_infraestrutura",
+    "fonte": "IPPUC",
+    "bairros": ["Prado Velho", "Hauer", "Fanny", "Novo Mundo"],
+    "regional": "Portão",
+    "impacto_ndvi": "negativo",
+    "relevancia": 5
+  },
+  {
+    "data": "2004-12-01",
+    "titulo": "Criação do Bosque do Alemão",
+    "descricao": "Novo bosque urbano no bairro Vista Alegre",
+    "categoria": "parque_area_verde",
+    "fonte": "SMMA Curitiba",
+    "bairros": ["Vista Alegre"],
+    "regional": "Boa Vista",
+    "impacto_ndvi": "positivo",
+    "relevancia": 3
+  },
+  {
+    "data": "2007-04-10",
+    "titulo": "Shopping Palladium inaugurado",
+    "descricao": "Um dos maiores shoppings do sul do Brasil, construído em área anteriormente verde",
+    "categoria": "empreendimento",
+    "fonte": "Gazeta do Povo",
+    "bairros": ["Portão"],
+    "regional": "Portão",
+    "impacto_ndvi": "negativo",
+    "relevancia": 4
+  },
+  {
+    "data": "2008-11-01",
+    "titulo": "Programa Biocidade lançado",
+    "descricao": "Programa municipal de sustentabilidade urbana com metas de arborização",
+    "categoria": "politica_publica",
+    "fonte": "Prefeitura de Curitiba",
+    "bairros": [],
+    "regional": "Todas",
+    "impacto_ndvi": "positivo",
+    "relevancia": 4
+  },
+  {
+    "data": "2010-08-01",
+    "titulo": "Censo IBGE 2010 — Curitiba: 1.751.907 habitantes",
+    "descricao": "Censo demográfico registra crescimento populacional de 10% desde 2000",
+    "categoria": "demografico",
+    "fonte": "IBGE",
+    "bairros": [],
+    "regional": "Todas",
+    "impacto_ndvi": "neutro",
+    "relevancia": 5
+  },
+  {
+    "data": "2012-06-15",
+    "titulo": "Lei Municipal 13.899 — IPTU Verde",
+    "descricao": "Desconto no IPTU para imóveis com área verde preservada",
+    "categoria": "politica_publica",
+    "fonte": "Câmara Municipal de Curitiba",
+    "bairros": [],
+    "regional": "Todas",
+    "impacto_ndvi": "positivo",
+    "relevancia": 5
+  },
+  {
+    "data": "2014-06-01",
+    "titulo": "Arena da Baixada — Copa do Mundo FIFA",
+    "descricao": "Reforma e ampliação do estádio para a Copa, com impacto na área urbana do entorno",
+    "categoria": "obra_infraestrutura",
+    "fonte": "Gazeta do Povo",
+    "bairros": ["Água Verde"],
+    "regional": "Portão",
+    "impacto_ndvi": "negativo",
+    "relevancia": 4
+  },
+  {
+    "data": "2015-12-01",
+    "titulo": "Revisão do Plano Diretor — Lei 14.771/2015",
+    "descricao": "Nova revisão do Plano Diretor com ênfase em sustentabilidade e adensamento ao longo de eixos",
+    "categoria": "legislacao",
+    "fonte": "IPPUC",
+    "bairros": [],
+    "regional": "Todas",
+    "impacto_ndvi": "positivo",
+    "relevancia": 5
+  },
+  {
+    "data": "2017-03-01",
+    "titulo": "Início obras do Ligeirão Leste-Oeste",
+    "descricao": "Nova linha de BRT conectando bairros leste e oeste, com remoção de canteiros",
+    "categoria": "transporte",
+    "fonte": "URBS Curitiba",
+    "bairros": ["Campina do Siqueira", "CIC", "Pinheirinho"],
+    "regional": "CIC",
+    "impacto_ndvi": "negativo",
+    "relevancia": 3
+  },
+  {
+    "data": "2019-01-01",
+    "titulo": "Programa de Plantio de 100 mil árvores",
+    "descricao": "Meta municipal de plantar 100 mil árvores em 4 anos",
+    "categoria": "politica_publica",
+    "fonte": "SMMA Curitiba",
+    "bairros": [],
+    "regional": "Todas",
+    "impacto_ndvi": "positivo",
+    "relevancia": 4
+  },
+  {
+    "data": "2020-03-15",
+    "titulo": "Pandemia COVID-19 — lockdown",
+    "descricao": "Redução de atividade de construção civil durante lockdown — possível recuperação vegetal temporária",
+    "categoria": "politica_publica",
+    "fonte": "Prefeitura de Curitiba",
+    "bairros": [],
+    "regional": "Todas",
+    "impacto_ndvi": "positivo",
+    "relevancia": 3
+  },
+  {
+    "data": "2022-08-01",
+    "titulo": "Censo IBGE 2022 — Curitiba: 1.773.733 habitantes",
+    "descricao": "Crescimento populacional desacelera, mas pressão urbana continua",
+    "categoria": "demografico",
+    "fonte": "IBGE",
+    "bairros": [],
+    "regional": "Todas",
+    "impacto_ndvi": "neutro",
+    "relevancia": 5
+  },
+  {
+    "data": "2023-06-01",
+    "titulo": "Inauguração do Parque de Bolso do Batel",
+    "descricao": "Micro parque urbano em área anteriormente degradada",
+    "categoria": "parque_area_verde",
+    "fonte": "SMMA Curitiba",
+    "bairros": ["Batel"],
+    "regional": "Matriz",
+    "impacto_ndvi": "positivo",
+    "relevancia": 2
+  }
+]

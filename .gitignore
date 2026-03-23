@@ -27,3 +27,4 @@ __pycache__/
 # Credentials
 *.json
 !data/shapefiles/*.json
+!events/seed_data/*.json
