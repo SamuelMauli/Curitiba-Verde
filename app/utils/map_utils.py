@@ -1,3 +1,4 @@
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 """Map utilities — rio-tiler COG rendering for Streamlit."""
 import base64
 from io import BytesIO

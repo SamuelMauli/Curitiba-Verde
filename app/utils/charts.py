@@ -1,3 +1,4 @@
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 # app/utils/charts.py
 """Plotly chart builders for the dashboard."""
 import plotly.graph_objects as go

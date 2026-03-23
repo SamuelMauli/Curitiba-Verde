@@ -1,4 +1,5 @@
 # app/Home.py
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 """CwbVerde — Home page with overview cards and summary."""
 import streamlit as st
 import pandas as pd

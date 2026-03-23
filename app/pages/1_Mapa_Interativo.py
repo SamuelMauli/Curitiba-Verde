@@ -1,3 +1,4 @@
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 # app/pages/1_Mapa_Interativo.py
 """Interactive map page — placeholder for React-Leaflet component (Plan 5)."""
 import streamlit as st

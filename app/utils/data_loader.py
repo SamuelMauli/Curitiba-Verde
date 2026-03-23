@@ -1,3 +1,4 @@
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 # app/utils/data_loader.py
 """Load pre-processed data for the dashboard."""
 import streamlit as st

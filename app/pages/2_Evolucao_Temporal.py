@@ -1,3 +1,4 @@
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 # app/pages/2_Evolucao_Temporal.py
 """Temporal evolution page — NDVI time series + event timeline."""
 import streamlit as st

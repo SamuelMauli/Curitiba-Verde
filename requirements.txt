@@ -23,5 +23,9 @@ scikit-learn>=1.3
 xgboost>=2.0
 joblib>=1.3
 
+# Map rendering
+rio-tiler>=6.0
+streamlit-folium>=0.20
+
 # Testing
 pytest>=7.4

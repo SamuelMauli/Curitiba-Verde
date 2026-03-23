@@ -1,3 +1,4 @@
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 # app/pages/3_Analise_Bairros.py
 """Bairro analysis page — ranking, choropleth, comparison."""
 import streamlit as st
