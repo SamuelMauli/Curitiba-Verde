@@ -1,0 +1,9 @@
+[project]
+name = "cwbverde"
+version = "0.1.0"
+description = "Deforestation mapping system for Curitiba using satellite imagery and ML"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

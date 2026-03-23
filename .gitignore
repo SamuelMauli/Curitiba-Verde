@@ -1,0 +1,29 @@
+# Data (large files)
+data/raw/
+data/processed/
+data/features/
+data/ndvi/
+data/classification/
+data/change/
+data/mapbiomas/
+data/stats/
+data/events.db
+outputs/
+models/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Credentials
+*.json
+!data/shapefiles/*.json
