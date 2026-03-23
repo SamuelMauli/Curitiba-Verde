@@ -1,0 +1,25 @@
+/* app/styles/custom.css */
+.main .block-container {
+    padding-top: 1rem;
+    max-width: 1200px;
+}
+
+.stMetric {
+    background-color: #E8F5E9;
+    border-radius: 8px;
+    padding: 10px;
+    border-left: 4px solid #2E7D32;
+}
+
+h1 {
+    color: #1B5E20;
+}
+
+h2 {
+    color: #2E7D32;
+}
+
+.comparison-panel {
+    display: flex;
+    gap: 1rem;
+}
