@@ -28,3 +28,4 @@ __pycache__/
 *.json
 !data/shapefiles/*.json
 !events/seed_data/*.json
+.gee-key.json
