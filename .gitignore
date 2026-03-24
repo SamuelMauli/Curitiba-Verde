@@ -31,3 +31,4 @@ __pycache__/
 .gee-key.json
 frontend/node_modules/
 frontend/dist/
+gee-service-account.json
