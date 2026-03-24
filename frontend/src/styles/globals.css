@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0a0f1a;
+  --bg-secondary: #111827;
+  --bg-card: rgba(17, 24, 39, 0.8);
+  --border: rgba(16, 185, 129, 0.2);
+  --accent: #10B981;
+  --accent-dim: rgba(16, 185, 129, 0.1);
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow: hidden;
+  height: 100vh;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+}
+
+/* Glassmorphism card */
+.glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.glass-hover:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.3);
+  border-radius: 3px;
+}
+
+/* Map container */
+.maplibregl-map {
+  font-family: inherit !important;
+}
