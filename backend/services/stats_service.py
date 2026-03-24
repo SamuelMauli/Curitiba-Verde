@@ -18,6 +18,13 @@ class StatsService:
             return df.to_dict(orient="records")
         return []
 
+    def get_classification_stats(self) -> list[dict]:
+        path = DATA_DIR / "stats" / "classification_summary.parquet"
+        if path.exists():
+            df = pd.read_parquet(path)
+            return df.to_dict(orient="records")
+        return []
+
     def get_bairro_stats(self, name: str, year: int) -> dict:
         path = DATA_DIR / "stats" / f"bairros_{year}.parquet"
         if path.exists():

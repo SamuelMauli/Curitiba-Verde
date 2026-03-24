@@ -86,6 +86,12 @@ def get_yearly_stats():
     return stats_svc.get_yearly_stats()
 
 
+@app.get("/api/stats/classification")
+def get_classification_stats():
+    """Get yearly classification statistics (water, vegetation, urban, etc)."""
+    return stats_svc.get_classification_stats()
+
+
 @app.get("/api/stats/bairro/{name}/{year}")
 def get_bairro_stats(name: str, year: int):
     """Get statistics for a specific bairro and year."""

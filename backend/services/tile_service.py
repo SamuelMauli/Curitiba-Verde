@@ -58,53 +58,82 @@ class TileService:
         h, w = data.shape
         rgba = np.zeros((h, w, 4), dtype=np.uint8)
 
-        if layer == "ndvi":
-            # Water: blue
-            if "water" in active_classes:
-                mask = data < -0.1
-                rgba[mask] = [59, 130, 246, 200]
+        if layer == "classification":
+            # Use real classification raster (classes 1-5)
+            # 1=water, 2=dense_veg, 3=light_veg, 4=urban, 5=bare_soil
+            CLASS_MAP = {
+                1: ("water", [30, 100, 220, 220]),
+                2: ("vegetation_dense", [22, 163, 74, 220]),
+                3: ("vegetation_light", [134, 239, 172, 190]),
+                4: ("urban", [220, 50, 50, 190]),
+                5: ("bare_soil", [234, 179, 8, 190]),
+            }
+            for class_id, (class_name, color) in CLASS_MAP.items():
+                if class_name in active_classes:
+                    rgba[data == class_id] = color
+            rgba[data == 0] = [0, 0, 0, 0]
 
-            # Bare soil / very low: yellow
-            if "bare_soil" in active_classes:
-                mask = (data >= -0.1) & (data < 0.0)
-                rgba[mask] = [234, 179, 8, 180]
+        elif layer == "ndvi":
+            # Use classification raster if available for better accuracy
+            class_path = self.class_dir / f"classification_{year}.tif"
+            if class_path.exists():
+                with rasterio.open(str(class_path)) as csrc:
+                    cdata = csrc.read(1)
+                # Resize if needed
+                if cdata.shape != data.shape:
+                    from PIL import Image as PILImg
+                    cimg = PILImg.fromarray(cdata)
+                    cimg = cimg.resize((data.shape[1], data.shape[0]), PILImg.NEAREST)
+                    cdata = np.array(cimg)
 
-            # Urban / low vegetation: red
-            if "urban" in active_classes:
-                mask = (data >= 0.0) & (data < 0.2)
-                rgba[mask] = [239, 68, 68, 160]
-
-            # Light vegetation: light green
-            if "vegetation_light" in active_classes:
-                mask = (data >= 0.2) & (data < 0.4)
-                rgba[mask] = [134, 239, 172, 180]
-
-            # Dense vegetation: green
-            if "vegetation_dense" in active_classes:
-                mask = data >= 0.4
-                rgba[mask] = [34, 197, 94, 220]
-
-            # No data: transparent
-            nodata_mask = (data == 0) | np.isnan(data)
-            rgba[nodata_mask] = [0, 0, 0, 0]
+                CLASS_MAP = {
+                    1: ("water", [30, 100, 220, 220]),
+                    2: ("vegetation_dense", [22, 163, 74, 220]),
+                    3: ("vegetation_light", [134, 239, 172, 190]),
+                    4: ("urban", [220, 50, 50, 190]),
+                    5: ("bare_soil", [234, 179, 8, 190]),
+                }
+                for class_id, (class_name, color) in CLASS_MAP.items():
+                    if class_name in active_classes:
+                        rgba[cdata == class_id] = color
+                rgba[cdata == 0] = [0, 0, 0, 0]
+            else:
+                # Fallback: simple NDVI thresholds
+                if "water" in active_classes:
+                    rgba[data < -0.1] = [30, 100, 220, 220]
+                if "bare_soil" in active_classes:
+                    rgba[(data >= -0.1) & (data < 0.0)] = [234, 179, 8, 190]
+                if "urban" in active_classes:
+                    rgba[(data >= 0.0) & (data < 0.2)] = [220, 50, 50, 190]
+                if "vegetation_light" in active_classes:
+                    rgba[(data >= 0.2) & (data < 0.4)] = [134, 239, 172, 190]
+                if "vegetation_dense" in active_classes:
+                    rgba[data >= 0.4] = [22, 163, 74, 220]
+                nodata_mask = (data == 0) | np.isnan(data)
+                rgba[nodata_mask] = [0, 0, 0, 0]
 
         elif layer == "change":
-            # Loss: red
             mask = data < 0
             rgba[mask] = [239, 68, 68, 200]
-            # Stable: transparent (don't show)
-            # Gain: green
             mask = data > 0
             rgba[mask] = [34, 197, 94, 200]
 
         else:
-            # Default: treat as NDVI
-            mask = data >= 0.4
-            rgba[mask] = [34, 197, 94, 200]
-            mask = (data >= 0.2) & (data < 0.4)
-            rgba[mask] = [134, 239, 172, 180]
-            mask = (data >= 0.0) & (data < 0.2)
-            rgba[mask] = [239, 68, 68, 160]
+            # Default: treat as classification if available
+            class_path = self.class_dir / f"classification_{year}.tif"
+            if class_path.exists():
+                with rasterio.open(str(class_path)) as csrc:
+                    cdata = csrc.read(1)
+                CLASS_MAP = {
+                    1: ("water", [30, 100, 220, 220]),
+                    2: ("vegetation_dense", [22, 163, 74, 220]),
+                    3: ("vegetation_light", [134, 239, 172, 190]),
+                    4: ("urban", [220, 50, 50, 190]),
+                    5: ("bare_soil", [234, 179, 8, 190]),
+                }
+                for class_id, (class_name, color) in CLASS_MAP.items():
+                    if class_name in active_classes:
+                        rgba[cdata == class_id] = color
 
         # Convert to PNG using PIL (much cleaner than matplotlib)
         img = Image.fromarray(rgba, 'RGBA')

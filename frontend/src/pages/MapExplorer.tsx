@@ -300,19 +300,23 @@ export default function MapExplorer() {
             <Layers size={16} color="var(--accent)" />
             <span style={{ fontSize: 13, fontWeight: 600 }}>Camadas</span>
           </div>
-          {['ndvi', 'change'].map(l => (
+          {[
+            { id: 'ndvi', label: 'Uso do Solo (NDVI+NDWI+NDBI)' },
+            { id: 'classification', label: 'Classificação Multi-Índice' },
+            { id: 'change', label: 'Mudança Temporal' },
+          ].map(l => (
             <button
-              key={l}
-              onClick={() => setLayer(l)}
+              key={l.id}
+              onClick={() => setLayer(l.id)}
               style={{
                 display: 'block', width: '100%', padding: '6px 10px', marginBottom: 4,
-                background: layer === l ? 'var(--accent-dim)' : 'transparent',
-                border: `1px solid ${layer === l ? 'var(--accent)' : 'transparent'}`,
+                background: layer === l.id ? 'var(--accent-dim)' : 'transparent',
+                border: `1px solid ${layer === l.id ? 'var(--accent)' : 'transparent'}`,
                 borderRadius: 6, color: 'var(--text-primary)', cursor: 'pointer',
                 fontSize: 13, textAlign: 'left',
               }}
             >
-              {l === 'ndvi' ? 'NDVI' : 'Mudança'}
+              {l.label}
             </button>
           ))}
         </div>
