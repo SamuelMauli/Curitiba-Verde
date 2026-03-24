@@ -145,6 +145,49 @@ class TileService:
         buf.seek(0)
         return buf.getvalue()
 
+    def get_rgb_image(self, year: int, width: int = 800, height: int = 1024) -> bytes:
+        """Render real satellite RGB image from composite bands (Red, Green, Blue)."""
+        raw_dir = DATA_DIR / "raw"
+        path = raw_dir / f"composite_{year}.tif"
+        if not path.exists():
+            raise FileNotFoundError(f"No composite for {year}")
+
+        with rasterio.open(str(path)) as src:
+            # Bands: blue(1), green(2), red(3), nir(4), swir1(5), swir2(6)
+            red = src.read(3).astype(np.float64)
+            green = src.read(2).astype(np.float64)
+            blue = src.read(1).astype(np.float64)
+
+        # Normalize to 0-255 with histogram stretch
+        def stretch(band):
+            valid = band[~np.isnan(band) & (band != 0)]
+            if len(valid) == 0:
+                return np.zeros_like(band, dtype=np.uint8)
+            p2, p98 = np.percentile(valid, [2, 98])
+            stretched = np.clip((band - p2) / (p98 - p2) * 255, 0, 255)
+            stretched[np.isnan(band)] = 0
+            return stretched.astype(np.uint8)
+
+        r = stretch(red)
+        g = stretch(green)
+        b = stretch(blue)
+
+        # Create alpha (transparent where nodata)
+        alpha = np.where((red == 0) & (green == 0) & (blue == 0), 0, 220).astype(np.uint8)
+        alpha[np.isnan(red)] = 0
+
+        h, w = r.shape
+        rgba = np.stack([r, g, b, alpha], axis=-1)
+
+        img = Image.fromarray(rgba, 'RGBA')
+        if (h, w) != (height, width):
+            img = img.resize((width, height), Image.LANCZOS)
+
+        buf = BytesIO()
+        img.save(buf, format='PNG', optimize=True)
+        buf.seek(0)
+        return buf.getvalue()
+
     def get_tile(self, layer: str, year: int, z: int, x: int, y: int) -> bytes:
         """Get a single tile — for now returns full image (tile server TBD)."""
         return self.get_full_image(layer, year)

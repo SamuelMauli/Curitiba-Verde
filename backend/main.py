@@ -73,6 +73,16 @@ def get_layer_image(layer: str, year: int, width: int = 800, height: int = 1024,
         raise HTTPException(404, f"No data for {layer}/{year}")
 
 
+@app.get("/api/rgb/{year}/image")
+def get_rgb_image(year: int, width: int = 800, height: int = 1024):
+    """Get real satellite RGB image."""
+    try:
+        png_bytes = tile_svc.get_rgb_image(year, width, height)
+        return Response(content=png_bytes, media_type="image/png")
+    except FileNotFoundError:
+        raise HTTPException(404, f"No RGB data for {year}")
+
+
 @app.get("/api/ndvi/{year}/point")
 def get_ndvi_point(year: int, lat: float = Query(...), lon: float = Query(...)):
     """Get NDVI value at a specific point."""

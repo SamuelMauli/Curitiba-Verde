@@ -46,6 +46,7 @@ export default function MapExplorer() {
   const [selectedBairro, setSelectedBairro] = useState<string | null>(null)
   const [popup, setPopup] = useState<{ lat: number; lon: number; info: PointInfo } | null>(null)
   const [showBairros, setShowBairros] = useState(true)
+  const [showSatellite, setShowSatellite] = useState(false)
   const [events, setEvents] = useState<TimelineEvent[]>([])
   const [drawMode, setDrawMode] = useState(false)
   const [drawnPoints, setDrawnPoints] = useState<[number, number][]>([])
@@ -57,7 +58,7 @@ export default function MapExplorer() {
     water: true,
   })
 
-  // Build image URL from layer, year, and active class filters
+  // Build image URLs
   const activeClasses = Object.entries(classFilters)
     .filter(([_, v]) => v)
     .map(([k]) => k)
@@ -65,6 +66,8 @@ export default function MapExplorer() {
   const imageUrl = activeClasses.length > 0
     ? getImageUrl(`/api/${layer}/${year}/image?width=800&height=1024&classes=${activeClasses}`)
     : null
+  // Real satellite RGB image
+  const rgbUrl = getImageUrl(`/api/rgb/${year}/image?width=800&height=1024`)
 
   useEffect(() => {
     fetchApi<number[]>('/api/years').then(y => { setYears(y); if (y.length) setYear(y[y.length - 1]) }).catch(console.error)
@@ -166,7 +169,23 @@ export default function MapExplorer() {
       >
         <NavigationControl position="bottom-right" />
 
-        {/* NDVI / Layer Overlay */}
+        {/* Real Satellite RGB Image */}
+        {showSatellite && (
+          <Source
+            type="image"
+            url={rgbUrl}
+            coordinates={[
+              [-49.40, -25.33],
+              [-49.15, -25.33],
+              [-49.15, -25.65],
+              [-49.40, -25.65],
+            ]}
+          >
+            <Layer id="satellite-rgb" type="raster" paint={{ 'raster-opacity': 0.9 }} />
+          </Source>
+        )}
+
+        {/* Classification / NDVI Overlay */}
         {imageUrl && (
           <Source
             type="image"
@@ -178,7 +197,7 @@ export default function MapExplorer() {
               [-49.40, -25.65],
             ]}
           >
-            <Layer id="ndvi-overlay" type="raster" paint={{ 'raster-opacity': 0.7 }} />
+            <Layer id="ndvi-overlay" type="raster" paint={{ 'raster-opacity': showSatellite ? 0.5 : 0.7 }} />
           </Source>
         )}
 
@@ -400,6 +419,20 @@ export default function MapExplorer() {
           >
             {showBairros ? <Eye size={14} /> : <EyeOff size={14} />}
             {showBairros ? 'Ocultar Bairros' : 'Mostrar Bairros'}
+          </button>
+          <button
+            onClick={() => setShowSatellite(!showSatellite)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6, width: '100%',
+              padding: '8px 10px', marginTop: 4,
+              background: showSatellite ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
+              border: `1px solid ${showSatellite ? '#3b82f6' : 'transparent'}`,
+              borderRadius: 6, color: showSatellite ? '#3b82f6' : 'var(--text-primary)',
+              cursor: 'pointer', fontSize: 13,
+            }}
+          >
+            {showSatellite ? <Eye size={14} /> : <EyeOff size={14} />}
+            {showSatellite ? 'Ocultar Satélite' : 'Mostrar Satélite Real'}
           </button>
         </div>
 
