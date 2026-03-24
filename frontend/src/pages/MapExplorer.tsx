@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Map as MapGL, NavigationControl, Source, Layer, Popup } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { Layers, Pencil, Eye, EyeOff } from 'lucide-react'
+import { Layers, Pencil, Eye, EyeOff, X, Filter } from 'lucide-react'
 import YearSlider from '../components/YearSlider'
 import { fetchApi, getImageUrl } from '../hooks/useApi'
 import type { MapLayerMouseEvent } from 'react-map-gl/maplibre'
@@ -22,6 +22,22 @@ interface TimelineEvent {
   titulo: string
 }
 
+interface ClassFilterState {
+  vegetation_dense: boolean
+  vegetation_light: boolean
+  urban: boolean
+  bare_soil: boolean
+  water: boolean
+}
+
+const CLASS_INFO: { key: keyof ClassFilterState; label: string; color: string }[] = [
+  { key: 'vegetation_dense', label: 'Vegetação Densa', color: '#22c55e' },
+  { key: 'vegetation_light', label: 'Vegetação Leve', color: '#86efac' },
+  { key: 'urban', label: 'Área Urbana', color: '#ef4444' },
+  { key: 'bare_soil', label: 'Solo Exposto', color: '#eab308' },
+  { key: 'water', label: 'Água', color: '#3b82f6' },
+]
+
 export default function MapExplorer() {
   const [years, setYears] = useState<number[]>([])
   const [year, setYear] = useState(2023)
@@ -30,10 +46,25 @@ export default function MapExplorer() {
   const [selectedBairro, setSelectedBairro] = useState<string | null>(null)
   const [popup, setPopup] = useState<{ lat: number; lon: number; info: PointInfo } | null>(null)
   const [showBairros, setShowBairros] = useState(true)
-  const [ndviImage, setNdviImage] = useState<string | null>(null)
   const [events, setEvents] = useState<TimelineEvent[]>([])
   const [drawMode, setDrawMode] = useState(false)
   const [drawnPoints, setDrawnPoints] = useState<[number, number][]>([])
+  const [classFilters, setClassFilters] = useState<ClassFilterState>({
+    vegetation_dense: true,
+    vegetation_light: true,
+    urban: true,
+    bare_soil: true,
+    water: true,
+  })
+
+  // Build image URL from layer, year, and active class filters
+  const activeClasses = Object.entries(classFilters)
+    .filter(([_, v]) => v)
+    .map(([k]) => k)
+    .join(',')
+  const imageUrl = activeClasses.length > 0
+    ? getImageUrl(`/api/${layer}/${year}/image?width=800&height=1024&classes=${activeClasses}`)
+    : null
 
   useEffect(() => {
     fetchApi<number[]>('/api/years').then(y => { setYears(y); if (y.length) setYear(y[y.length - 1]) }).catch(console.error)
@@ -41,9 +72,12 @@ export default function MapExplorer() {
   }, [])
 
   useEffect(() => {
-    setNdviImage(getImageUrl(`/api/ndvi/${year}/image?width=800&height=1024`))
     fetchApi<TimelineEvent[]>(`/api/events?year=${year}&limit=50`).then(setEvents).catch(console.error)
   }, [year])
+
+  const toggleClassFilter = (key: keyof ClassFilterState) => {
+    setClassFilters(prev => ({ ...prev, [key]: !prev[key] }))
+  }
 
   const handleMapClick = useCallback(async (e: MapLayerMouseEvent) => {
     if (drawMode) {
@@ -132,11 +166,11 @@ export default function MapExplorer() {
       >
         <NavigationControl position="bottom-right" />
 
-        {/* NDVI Overlay */}
-        {ndviImage && (
+        {/* NDVI / Layer Overlay */}
+        {imageUrl && (
           <Source
             type="image"
-            url={ndviImage}
+            url={imageUrl}
             coordinates={[
               [-49.40, -25.33],
               [-49.15, -25.33],
@@ -233,9 +267,9 @@ export default function MapExplorer() {
             <div style={{ color: '#111', padding: 4 }}>
               {popup.info.type === 'area' ? (
                 <>
-                  <h4 style={{ fontWeight: 700, marginBottom: 4 }}>\u00c1rea Selecionada</h4>
-                  <p>NDVI M\u00e9dio: <b>{popup.info.ndvi_mean?.toFixed(3)}</b></p>
-                  <p>\u00c1rea verde: <b>{popup.info.green_area_ha?.toFixed(1)} ha</b></p>
+                  <h4 style={{ fontWeight: 700, marginBottom: 4 }}>Área Selecionada</h4>
+                  <p>NDVI Médio: <b>{popup.info.ndvi_mean?.toFixed(3)}</b></p>
+                  <p>Área verde: <b>{popup.info.green_area_ha?.toFixed(1)} ha</b></p>
                   <p>Cobertura: <b>{popup.info.green_percent?.toFixed(1)}%</b></p>
                 </>
               ) : (
@@ -278,10 +312,46 @@ export default function MapExplorer() {
                 fontSize: 13, textAlign: 'left',
               }}
             >
-              {l === 'ndvi' ? 'NDVI' : 'Mudan\u00e7a'}
+              {l === 'ndvi' ? 'NDVI' : 'Mudança'}
             </button>
           ))}
         </div>
+
+        {/* Class Filters */}
+        {layer === 'ndvi' && (
+          <div className="glass" style={{ padding: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <Filter size={16} color="var(--accent)" />
+              <span style={{ fontSize: 13, fontWeight: 600 }}>Filtros de Classe</span>
+            </div>
+            {CLASS_INFO.map(({ key, label, color }) => {
+              const active = classFilters[key]
+              return (
+                <button
+                  key={key}
+                  onClick={() => toggleClassFilter(key)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+                    padding: '6px 10px', marginBottom: 4,
+                    background: active ? `${color}18` : 'transparent',
+                    border: `1px solid ${active ? `${color}60` : 'rgba(255,255,255,0.1)'}`,
+                    borderRadius: 6, cursor: 'pointer', fontSize: 13,
+                    color: active ? 'var(--text-primary)' : '#6b7280',
+                    opacity: active ? 1 : 0.5,
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <span style={{
+                    width: 10, height: 10, borderRadius: '50%',
+                    background: active ? color : '#4b5563',
+                    flexShrink: 0,
+                  }} />
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {/* Tools */}
         <div className="glass" style={{ padding: 12 }}>
@@ -300,7 +370,7 @@ export default function MapExplorer() {
               cursor: 'pointer', fontSize: 13,
             }}
           >
-            <Pencil size={14} /> {drawMode ? 'Desenhando...' : 'Desenhar Pol\u00edgono'}
+            <Pencil size={14} /> {drawMode ? 'Desenhando...' : 'Desenhar Polígono'}
           </button>
           {drawMode && drawnPoints.length >= 3 && (
             <button
@@ -312,7 +382,7 @@ export default function MapExplorer() {
                 fontSize: 13, fontWeight: 600,
               }}
             >
-              Calcular \u00c1rea ({drawnPoints.length} pontos)
+              Calcular Área ({drawnPoints.length} pontos)
             </button>
           )}
           <button
@@ -336,8 +406,8 @@ export default function MapExplorer() {
               <h4 style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)' }}>{selectedBairro}</h4>
               <button
                 onClick={() => setSelectedBairro(null)}
-                style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: 16 }}
-              >\u00d7</button>
+                style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              ><X size={16} /></button>
             </div>
             <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
               Clique no mapa para ver valores NDVI
@@ -360,6 +430,28 @@ export default function MapExplorer() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Map Legend - bottom right */}
+      <div className="glass" style={{
+        position: 'absolute', bottom: 32, right: 56, padding: 12,
+        minWidth: 160,
+      }}>
+        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: 'var(--text-primary)' }}>
+          Legenda
+        </div>
+        {CLASS_INFO.map(({ key, label, color }) => (
+          <div key={key} style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '3px 0', fontSize: 11, color: 'var(--text-secondary)',
+          }}>
+            <span style={{
+              width: 12, height: 12, borderRadius: 3,
+              background: color, flexShrink: 0,
+            }} />
+            {label}
+          </div>
+        ))}
       </div>
     </div>
   )

@@ -40,7 +40,7 @@ export default function StatCard({ title, value, subtitle, icon: Icon, trend, co
           color: trend >= 0 ? '#10B981' : '#ef4444',
           fontWeight: 600,
         }}>
-          {trend >= 0 ? '\u2191' : '\u2193'} {Math.abs(trend).toFixed(1)}% vs 2000
+          {trend >= 0 ? '↑' : '↓'} {Math.abs(trend).toFixed(1)}% vs 2000
         </div>
       )}
     </motion.div>

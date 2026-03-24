@@ -5,10 +5,29 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import Response, JSONResponse
 import numpy as np
+import json
 
-app = FastAPI(title="CwbVerde API", version="2.0.0")
+
+class UTF8JSONResponse(JSONResponse):
+    """JSON response that ensures proper UTF-8 encoding for Portuguese characters."""
+    media_type = "application/json; charset=utf-8"
+
+    def render(self, content) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            separators=(",", ":"),
+        ).encode("utf-8")
+
+
+app = FastAPI(
+    title="CwbVerde API",
+    version="2.0.0",
+    default_response_class=UTF8JSONResponse,
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -44,14 +63,14 @@ def get_tile(layer: str, year: int, z: int, x: int, y: int):
         raise HTTPException(500, str(e))
 
 
-@app.get("/api/ndvi/{year}/image")
-def get_ndvi_image(year: int, width: int = 800, height: int = 1024):
-    """Get full NDVI image as PNG."""
+@app.get("/api/{layer}/{year}/image")
+def get_layer_image(layer: str, year: int, width: int = 800, height: int = 1024, classes: str = "all"):
+    """Get layer image with optional class filtering."""
     try:
-        png_bytes = tile_svc.get_full_image("ndvi", year, width, height)
+        png_bytes = tile_svc.get_full_image(layer, year, width, height, classes=classes)
         return Response(content=png_bytes, media_type="image/png")
     except FileNotFoundError:
-        raise HTTPException(404, f"No NDVI data for {year}")
+        raise HTTPException(404, f"No data for {layer}/{year}")
 
 
 @app.get("/api/ndvi/{year}/point")

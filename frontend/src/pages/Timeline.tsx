@@ -37,7 +37,7 @@ export default function Timeline() {
     <div style={{ height: '100vh', overflow: 'auto', padding: 24 }}>
       <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 4 }}>Timeline <span style={{ color: 'var(--accent)' }}>Histórica</span></h1>
       <p style={{ color: 'var(--text-secondary)', marginBottom: 20 }}>{events.length} eventos documentados</p>
-      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
           <Search size={16} style={{ position: 'absolute', left: 12, top: 10, color: '#6b7280' }} />
           <input placeholder="Buscar eventos..." value={filter} onChange={e => setFilter(e.target.value)} style={{ width: '100%', padding: '8px 12px 8px 36px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 14, outline: 'none' }} />
@@ -50,6 +50,10 @@ export default function Timeline() {
           <option value="">Todos os anos</option>
           {Array.from({ length: 27 }, (_, i) => 2000 + i).map(y => <option key={y} value={y}>{y}</option>)}
         </select>
+        {/* Counter showing filtered results */}
+        <span style={{ padding: '8px 14px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+          {filtered.length} de {events.length} eventos
+        </span>
       </div>
       <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
         {Object.entries(CC).map(([cat, color]) => (
@@ -70,8 +74,19 @@ export default function Timeline() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                     <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 600, background: `${CC[ev.categoria] || '#666'}20`, color: CC[ev.categoria] || '#666' }}>{CL[ev.categoria] || ev.categoria}</span>
                     <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{ev.data}</span>
-                    {ev.impacto_ndvi === 'positivo' && <span style={{ color: '#10B981' }}>↑</span>}
-                    {ev.impacto_ndvi === 'negativo' && <span style={{ color: '#ef4444' }}>↓</span>}
+                    {ev.impacto_ndvi && (
+                      <span style={{
+                        padding: '2px 10px',
+                        borderRadius: 10,
+                        fontSize: 10,
+                        fontWeight: 700,
+                        background: ev.impacto_ndvi === 'positivo' ? 'rgba(16,185,129,0.15)' : ev.impacto_ndvi === 'negativo' ? 'rgba(239,68,68,0.15)' : 'rgba(107,114,128,0.15)',
+                        color: ev.impacto_ndvi === 'positivo' ? '#10B981' : ev.impacto_ndvi === 'negativo' ? '#ef4444' : '#6b7280',
+                        border: `1px solid ${ev.impacto_ndvi === 'positivo' ? 'rgba(16,185,129,0.3)' : ev.impacto_ndvi === 'negativo' ? 'rgba(239,68,68,0.3)' : 'rgba(107,114,128,0.3)'}`,
+                      }}>
+                        {ev.impacto_ndvi === 'positivo' ? '↑' : ev.impacto_ndvi === 'negativo' ? '↓' : '—'} {ev.impacto_ndvi}
+                      </span>
+                    )}
                   </div>
                   <h4 style={{ fontSize: 14, fontWeight: 600 }}>{ev.titulo}</h4>
                   {ev.descricao && <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>{ev.descricao}</p>}
