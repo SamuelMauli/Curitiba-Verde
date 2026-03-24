@@ -29,3 +29,5 @@ __pycache__/
 !data/shapefiles/*.json
 !events/seed_data/*.json
 .gee-key.json
+frontend/node_modules/
+frontend/dist/
