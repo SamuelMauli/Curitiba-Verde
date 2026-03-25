@@ -15,6 +15,28 @@ class TileService:
         self.ndvi_dir = DATA_DIR / "ndvi"
         self.change_dir = DATA_DIR / "change"
         self.class_dir = DATA_DIR / "classification"
+        self._curitiba_mask = None
+        self._curitiba_geom = None
+        self._load_curitiba_boundary()
+
+    def _load_curitiba_boundary(self):
+        """Load Curitiba boundary for clipping rasters."""
+        import geopandas as gpd
+        shp_path = DATA_DIR / "shapefiles" / "bairros_curitiba.geojson"
+        if shp_path.exists():
+            gdf = gpd.read_file(str(shp_path))
+            curitiba = gdf.dissolve()
+            self._curitiba_geom = [curitiba.geometry.iloc[0].__geo_interface__]
+
+    def _clip_to_curitiba(self, raster_path):
+        """Read a raster and clip to Curitiba boundary. Returns masked array."""
+        from rasterio.mask import mask as rasterio_mask
+        with rasterio.open(str(raster_path)) as src:
+            if self._curitiba_geom:
+                clipped, _ = rasterio_mask(src, self._curitiba_geom, crop=False, nodata=np.nan)
+                return clipped[0]
+            else:
+                return src.read(1)
 
     def get_available_years(self) -> list[int]:
         years = []
@@ -45,8 +67,8 @@ class TileService:
         if not path.exists():
             raise FileNotFoundError(f"No data: {path}")
 
-        with rasterio.open(str(path)) as src:
-            data = src.read(1)
+        # Read and clip to Curitiba boundary (no more rectangle!)
+        data = self._clip_to_curitiba(path)
 
         # Parse which classes to show
         if classes == "all":
@@ -77,8 +99,7 @@ class TileService:
             # Use classification raster if available for better accuracy
             class_path = self.class_dir / f"classification_{year}.tif"
             if class_path.exists():
-                with rasterio.open(str(class_path)) as csrc:
-                    cdata = csrc.read(1)
+                cdata = self._clip_to_curitiba(class_path)
                 # Resize if needed
                 if cdata.shape != data.shape:
                     from PIL import Image as PILImg
@@ -122,8 +143,7 @@ class TileService:
             # Default: treat as classification if available
             class_path = self.class_dir / f"classification_{year}.tif"
             if class_path.exists():
-                with rasterio.open(str(class_path)) as csrc:
-                    cdata = csrc.read(1)
+                cdata = self._clip_to_curitiba(class_path)
                 CLASS_MAP = {
                     1: ("water", [30, 100, 220, 220]),
                     2: ("vegetation_dense", [22, 163, 74, 220]),
@@ -152,11 +172,18 @@ class TileService:
         if not path.exists():
             raise FileNotFoundError(f"No composite for {year}")
 
+        # Read and clip to Curitiba boundary
+        from rasterio.mask import mask as rasterio_mask
         with rasterio.open(str(path)) as src:
-            # Bands: blue(1), green(2), red(3), nir(4), swir1(5), swir2(6)
-            red = src.read(3).astype(np.float64)
-            green = src.read(2).astype(np.float64)
-            blue = src.read(1).astype(np.float64)
+            if self._curitiba_geom:
+                clipped, _ = rasterio_mask(src, self._curitiba_geom, crop=False, nodata=np.nan)
+                red = clipped[2].astype(np.float64)   # band 3
+                green = clipped[1].astype(np.float64)  # band 2
+                blue = clipped[0].astype(np.float64)   # band 1
+            else:
+                red = src.read(3).astype(np.float64)
+                green = src.read(2).astype(np.float64)
+                blue = src.read(1).astype(np.float64)
 
         # Normalize to 0-255 with histogram stretch
         def stretch(band):
