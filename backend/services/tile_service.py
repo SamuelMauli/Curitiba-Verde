@@ -33,10 +33,21 @@ class TileService:
         from rasterio.mask import mask as rasterio_mask
         with rasterio.open(str(raster_path)) as src:
             if self._curitiba_geom:
-                clipped, _ = rasterio_mask(src, self._curitiba_geom, crop=False, nodata=np.nan)
-                return clipped[0]
+                dtype = src.dtypes[0]
+                # Use appropriate nodata value based on dtype
+                if np.issubdtype(np.dtype(dtype), np.floating):
+                    nodata_val = np.nan
+                else:
+                    nodata_val = 0
+                clipped, _ = rasterio_mask(src, self._curitiba_geom, crop=False, nodata=nodata_val)
+                data = clipped[0].astype(np.float32)
+                # Mark outside-Curitiba pixels as NaN
+                if nodata_val == 0:
+                    # For uint8 classification, 0 already means nodata
+                    pass
+                return data
             else:
-                return src.read(1)
+                return src.read(1).astype(np.float32)
 
     def get_available_years(self) -> list[int]:
         years = []
