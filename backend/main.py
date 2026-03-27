@@ -63,12 +63,15 @@ def get_tile(layer: str, year: int, z: int, x: int, y: int):
         raise HTTPException(500, str(e))
 
 
+_NO_CACHE = {"Cache-Control": "no-store, no-cache, must-revalidate", "Pragma": "no-cache"}
+
+
 @app.get("/api/{layer}/{year}/image")
 def get_layer_image(layer: str, year: int, width: int = 800, height: int = 1024, classes: str = "all"):
     """Get layer image with optional class filtering."""
     try:
         png_bytes = tile_svc.get_full_image(layer, year, width, height, classes=classes)
-        return Response(content=png_bytes, media_type="image/png")
+        return Response(content=png_bytes, media_type="image/png", headers=_NO_CACHE)
     except FileNotFoundError:
         raise HTTPException(404, f"No data for {layer}/{year}")
 
@@ -78,7 +81,7 @@ def get_rgb_image(year: int, width: int = 800, height: int = 1024):
     """Get real satellite RGB image."""
     try:
         png_bytes = tile_svc.get_rgb_image(year, width, height)
-        return Response(content=png_bytes, media_type="image/png")
+        return Response(content=png_bytes, media_type="image/png", headers=_NO_CACHE)
     except FileNotFoundError:
         raise HTTPException(404, f"No RGB data for {year}")
 
